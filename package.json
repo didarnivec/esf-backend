@@ -1,0 +1,36 @@
+{
+  "name": "esf-backend",
+  "version": "1.0.0",
+  "description": "RESTful API backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "mocha",
+    "lint": "eslint index.js",
+    "lint-fix": "eslint index.js --fix"
+  },
+  "author": "Timur Z",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "carbone": "^3.5.5",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "forever-agent": "^0.6.1",
+    "jsonix": "^2.4.1",
+    "request": "^2.88.2",
+    "soap": "^0.25.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.8",
+    "supertest": "^3.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timurengineer/esf-rest-proxy.git"
+  }
+}

@@ -1,0 +1,8 @@
+/node_modules
+/deploy_keys
+.DS_Store
+/env/config.json
+*.log
+*.pdf
+*.swp
+*.retry
