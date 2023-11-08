@@ -4,12 +4,46 @@ const cors = require('cors');
 const fs = require('fs');
 const carbone = require('carbone');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const createService = require('./soapService');
 const parseXml = require('./xmlParser');
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+// Подключение к MongoDB
+mongoose.connect('mongodb://localhost:27017', { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'Ошибка подключения к MongoDB:'));
+db.once('open', () => {
+  console.log('Успешное подключение к MongoDB');
+});
+
+const invoicesSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+    unique: true, // Уникальный идентификатор записи
+  },
+  body: {
+    type: JSON,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now, // Время создания записи в БД
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'sent', 'failed'], // Возможные статусы отправки
+    default: 'pending', // Статус по умолчанию
+  },
+});
+
+const Invoices = mongoose.model('Invoices', invoicesSchema);
+
 
 const getStatus = ({ response }) => (response ? response.statusCode : 500);
 

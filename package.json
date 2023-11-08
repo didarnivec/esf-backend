@@ -9,7 +9,7 @@
     "lint": "eslint index.js",
     "lint-fix": "eslint index.js --fix"
   },
-  "author": "Timur Z",
+  "author": "nivedidar",
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -18,6 +18,7 @@
     "express": "^4.16.4",
     "forever-agent": "^0.6.1",
     "jsonix": "^2.4.1",
+    "mongoose": "^8.0.0",
     "request": "^2.88.2",
     "soap": "^0.25.0"
   },
