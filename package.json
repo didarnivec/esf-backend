@@ -19,6 +19,7 @@
     "forever-agent": "^0.6.1",
     "jsonix": "^2.4.1",
     "mongoose": "^8.0.0",
+    "node-cron": "^3.0.3",
     "request": "^2.88.2",
     "soap": "^0.25.0"
   },
