@@ -97,42 +97,42 @@ const initializeApp = ([invoiceService, sessionService]) => {
               dateFrom: (new Date('2023-11-01')).toISOString(),
               dateTo: (new Date('2023-11-08')).toISOString(),
               invoiceStatusList: {
-                invoiceStatus: ['CREATED', 'DELIVERED'],
+                invoiceStatus: ['CREATED', 'DELIVERED', 'REVOKED', 'CANCELED'],
               },
               //...other,
               asc: true,
             },
         }
         invoiceService('queryInvoice', { body })
+        .then(parseXml)
         .then((response) => {
-       //   console.log(JSON.stringify(response.invoiceInfoList))
-          
-          let serializeResponse = response.invoiceInfoList.invoiceInfo.map((item) => {
-            console.log(item.invoice);
-            // return {
-            //   company: {
-            //     bin: item.invoice.consignor.tin,
-            //     company: item.invoice.consignor.name,
-            //     address: item.invoice.consignor.address,
-            //   },
-            //   invoice: {
-            //     number: item.invoice.num,
-            //     type: item.invoice.invoiceType,
-            //     status: item.invoiceStatus,
-            //     esf_num: item.invoiceId,
-            //     esf_long_num: item.registrationNumber,
-            //   },
-            //   date: {
-            //     turnover: item.invoice.turnoverDate,
-            //     send: item.invoice.date,
-            //   },
-            //   sum: {
-            //     withNDS: item.invoice.productSet.totalPriceWithTax,
-            //     withoutNds: item.invoice.productSet.totalPriceWithoutTax,
-            //   },
-            // };  
-          })
-          console.log(`normalObject: ${serializeResponse}`)
+  
+         let serializeResponse = response.invoiceInfoList.invoiceInfo.map((item) => {
+          // console.log(JSON.stringify(item))
+            return {
+               company: {
+                bin: item.invoice.consignor && item.invoice.consignor.tin ? item.invoice.consignor.tin : 'Not available',
+                company: item.invoice.consignor && item.invoice.consignor.name ? item.invoice.consignor.name : 'Not available',
+                address: item.invoice.consignor && item.invoice.consignor.address ? item.invoice.consignor.address : 'Not available',
+              },
+              invoice: {
+                number: item.invoice.num,
+                type: item.invoice.invoiceType,
+                status: item.invoiceStatus,
+                esf_num: item.invoiceId,
+                esf_long_num: item.registrationNumber,
+              },
+              date: {
+                turnover: item.invoice.turnoverDate,
+                send: item.invoice.date,
+              },
+              sum: {
+                withNDS: item.invoice.productSet.totalPriceWithTax,
+                withoutNds: item.invoice.productSet.totalPriceWithoutTax,
+              },
+            };  
+         })
+         console.log(JSON.stringify(serializeResponse))
         })
     }
       )
@@ -201,6 +201,7 @@ const initializeApp = ([invoiceService, sessionService]) => {
         asc: true,
       },
     };
+
     invoiceService('queryInvoice', { body })
       .then(parseXml)
       .then(async (result)=> {
