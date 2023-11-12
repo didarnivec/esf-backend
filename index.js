@@ -37,7 +37,7 @@ const invoicesSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'sent', 'failed'], // Возможные статусы отправки
+    enum: ['CREATED', 'DELIVERED', 'REVOKED', 'CANCELED'], // Возможные статусы отправки
     default: 'pending', // Статус по умолчанию
   },
 });
@@ -60,28 +60,30 @@ const initializeApp = ([invoiceService, sessionService]) => {
     res.send('Service started...')
   });
   
-  const writeToDatabase = () => {
-    console.log(`writeDatabase`)
-    const dataToSave = {
-      id: 'uniqueId', // Замените на уникальный идентификатор
-      body: 'Сформированные данные',
-    };
+  const writeToDatabase = (body) => {
   
-    const newItem = new Item(dataToSave);
-  
-    newItem.save((err) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log('Данные успешно записаны в базу данных.');
-      }
+      body.forEach((item) => {
+        const dataToSave = {
+          id: item.invoice.esf_num, 
+          body: item,
+          status: item.invoice.status
+        };
+      const invoice = new Invoices(dataToSave);
+      invoice.save()
+        .then(() => {
+          console.log('Данные успешно сохранены в MongoDB.');
+        })
+        .catch((error) => {
+          console.error('Ошибка при сохранении данных в MongoDB:', error);
+        });
     });
+
   };
   let x509Certificate = "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"
   let password = "As123456"
   let username = "730327401669"
   
-  cron.schedule('* * * * *', () => {
+  cron.schedule('0 0 * * *', () => {
     const body = {
       tin: '080540002682',
       x509Certificate,
@@ -107,8 +109,7 @@ const initializeApp = ([invoiceService, sessionService]) => {
         .then(parseXml)
         .then((response) => {
   
-         let serializeResponse = response.invoiceInfoList.invoiceInfo.map((item) => {
-          // console.log(JSON.stringify(item))
+         return response.invoiceInfoList.invoiceInfo.map((item) => {
             return {
                company: {
                 bin: item.invoice.consignor && item.invoice.consignor.tin ? item.invoice.consignor.tin : 'Not available',
@@ -132,7 +133,9 @@ const initializeApp = ([invoiceService, sessionService]) => {
               },
             };  
          })
-         console.log(JSON.stringify(serializeResponse))
+        })
+        .then((body) => {
+            writeToDatabase(body)
         })
     }
       )
@@ -140,7 +143,6 @@ const initializeApp = ([invoiceService, sessionService]) => {
         console.log(JSON.stringify(result))
       })
       .catch(error => console.log(error))
-    //writeToDatabase();
   });
 
   app.post('/v1/sessions/createsession', (req, res) => {
