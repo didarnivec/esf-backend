@@ -38,7 +38,7 @@ const invoicesSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['CREATED', 'DELIVERED', 'REVOKED', 'CANCELED'], // Возможные статусы отправки
+    enum: ['CREATED', 'DELIVERED', 'REVOKED', 'CANCELED', 'PENDING'], // Возможные статусы отправки
     default: 'PENDING', // Статус по умолчанию
   },
 });
@@ -64,10 +64,11 @@ const initializeApp = ([invoiceService, sessionService]) => {
   const writeToDatabase = (body) => {
   
       body.forEach((item) => {
+        try {
         const dataToSave = {
-          id: item.invoice.esf_num, 
+          id: item.invoice.num, 
           body: item,
-          status: item.invoice.status
+          status: item.invoice.invoiceStatus
         };
       const invoice = new Invoices(dataToSave);
       invoice.save()
@@ -76,7 +77,10 @@ const initializeApp = ([invoiceService, sessionService]) => {
         })
         .catch((error) => {
           console.error('Ошибка при сохранении данных в MongoDB:', error);
-        });
+        }); 
+      } catch(error) {
+        throw error;
+      }
     });
   };
 
@@ -85,8 +89,8 @@ async function sendData(data) {
   const passSap = '4bK8A4.%,o1G';
   const authString = `${userSap}:${passSap}`;
   const base64AuthString = Buffer.from(authString).toString('base64');
-  const apiUrl = 'http://sap-pip.inkar.kz:53000/RESTAdapter/wseis';
- // const apiUrl = 'http://localhost:5000/api/test';
+ // const apiUrl = 'http://sap-pip.inkar.kz:53000/RESTAdapter/wseis';
+  const apiUrl = 'http://localhost:5000/api/test';
   const axiosOptions = {
     method: 'post', 
     url: apiUrl,
@@ -118,13 +122,13 @@ async function sendData(data) {
         x509Certificate: "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"
       }
     },
-    {
-      username: "940715300181",
-      password: "123456Aa",
-      body: {
-        tin: "040140005625",
-      x509Certificate: "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"
-        }  }
+    // {
+    //   username: "940715300181",
+    //   password: "123456Aa",
+    //   body: {
+    //     tin: "040140005625",
+    //   x509Certificate: "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"
+    //     }  }
   ]
 
   
@@ -157,14 +161,18 @@ async function sendData(data) {
           },
         };
     
-        const response = await invoiceService('queryInvoice', { body });
-        const parsedData = response.invoiceInfoList.invoiceInfo.map((item) => {
-          try {
-          if(!item.invoice) {
-            if (!item.invoice) {
-              throw new Error("item.invoice is not defined");
-            }
-          }
+        const response = await invoiceService('queryInvoice', { body })
+
+        const jsonData = await parseXml(response);
+        console.log(JSON.stringify(jsonData.invoiceInfoList.invoiceInfo[0]));
+        const parsedData = jsonData.invoiceInfoList.invoiceInfo.map((item) => {
+        //  try {
+          // if(!item.invoice) {
+          //   if (!item.invoice) {
+          //     throw new Error("item.invoice is not defined");
+          //   }
+          // }
+          console.log(`item.invoice.consignor: ${item.invoice.consignor}`)
           return {
             "company": {
               "bin": item.invoice.consignor && item.invoice.consignor.tin ? item.invoice.consignor.tin : 'Not available',
@@ -173,16 +181,15 @@ async function sendData(data) {
             },
             // ... other properties
           };
-        } catch(error) {
-          console.error(`Ошибка при обработке данных: ${error.message}`);
-          throw error;
-        }
+        // } catch(error) {
+        //   console.error(`Ошибка при обработке данных: ${error.message}`);
+        //   throw error;
+        // }
         });
     
         writeToDatabase(parsedData);
     
         for (const data of parsedData) {
-          console.log(`Отправка данных: ${JSON.stringify(data)}`);
           await sendData(data);
         }
     
