@@ -66,7 +66,7 @@ const initializeApp = ([invoiceService, sessionService]) => {
       body.forEach(async (item) => {
         try {
         const dataToSave = {
-          id: item.invoice.esf_num, 
+          id: item.invoice.number, 
           body: item,
           status: item.invoice.status
         };
@@ -115,7 +115,7 @@ async function sendData(data) {
   
   const digitalKeys = [
     {
-      password: "As123456", //курмет
+      password: "As123456", //курмет --check
       username: "730327401669",
       body: {
         tin: "080540002682",
@@ -123,7 +123,7 @@ async function sendData(data) {
       }
     },
     {
-      username: "940715300181", //Джиэнка
+      username: "940715300181", //Джиэнка --check
       password: "123456Aa",
       body: {
         tin: "040140005625",
@@ -131,7 +131,7 @@ async function sendData(data) {
         }  
       },
       {
-        username: "850127402139", //Тенгри
+        username: "850127402139", //Тенгри --check
         password: "Aaa1234",
         body: {
           tin: "210140007172", 
@@ -139,7 +139,7 @@ async function sendData(data) {
           }  
         },
         {
-          username: "640311400016", //Аспект транс
+          username: "640311400016", //Аспект транс --check
           password: "Aa1234",
           body: {
             tin: "070340000324",
@@ -147,7 +147,7 @@ async function sendData(data) {
             }  
           },
           {
-            username: "910421400035", //Асыл Ирбис
+            username: "910421400035", //Асыл Ирбис --check
             password: "Aa123456",
             body: {
               tin: "110240001929",
@@ -159,7 +159,7 @@ async function sendData(data) {
 
   
 
-  cron.schedule('*/4 * * * *', () => {
+  cron.schedule('0 0 * * *', () => {
 
     const promises = digitalKeys.map(async (key) => {
       try {
@@ -168,7 +168,7 @@ async function sendData(data) {
           password: key.password, 
           body: key.body 
         });
-    
+        
         const body = {
           sessionId: result.sessionId,
           criteria: {
@@ -176,17 +176,18 @@ async function sendData(data) {
             dateFrom: (new Date('2023-11-01')).toISOString(),
             dateTo: (new Date('2023-11-27')).toISOString(),
             invoiceStatusList: {
-              invoiceStatus: ['CREATED', 'DELIVERED', 'REVOKED', 'CANCELED'],
+              //invoiceStatus: ['CREATED', 'DELIVERED', 'REVOKED', 'CANCELED'],
+              invoiceStatus: ['DELIVERED'],
             },
             //...other,
             asc: true,
           },
         };
-    
+        console.log(JSON.stringify(body));
         const response = await invoiceService('queryInvoice', { body })
 
         const jsonData = await parseXml(response);
-        const parsedData = jsonData.invoiceInfoList.invoiceInfo.map(async (item) => {
+        const parsedData = jsonData.invoiceInfoList.invoiceInfo.map((item) => {
 
           return { 
             company: { 
@@ -239,8 +240,9 @@ async function sendData(data) {
 
   app.post('/v1/sessions/createsession', (req, res) => {
     const { username, password, x509Certificate } = req.body;
+    console.log(req.body)
     const body = {
-      tin: '080540002682',
+      tin: '040140005625',
       //tin: '080540002682',
       x509Certificate,
     };
