@@ -21,7 +21,7 @@ module.exports = (name, options = {}) => new Promise((resolveService, rejectServ
       }
       console.log(`Request Body for ${method}:`, body);
 
-      client[method](body, (error, result) => {
+    return  client[method](body, (error, result) => {
         if (error) {
           reject(error)
         }
